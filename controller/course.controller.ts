@@ -55,7 +55,7 @@ const controller = {
       });
     } catch (error) {
       if (error instanceof Error && "code" in error && error.code === "P2002") {
-        return res.status(500).json({
+        return res.status(400).json({
           success: false,
           data: null,
           error: "TITLE_ALREADY_TAKEN",
@@ -117,6 +117,67 @@ const controller = {
       }
 
       return res.status(201).json({
+        success: true,
+        data: course,
+        error: null,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        data: null,
+        error: "INTERNAL_SERVER_ERROR",
+      });
+    }
+  },
+  getCourseLesson: async (req: Request, res: Response) => {
+    try {
+      const courseId = req.params.courseId as string;
+
+      const lesson = await prisma.course.findFirst({
+        where: {
+          id: courseId,
+        },
+        select: {
+          lesson: {
+            select: {
+              title: true,
+              content: true,
+            },
+          },
+        },
+      });
+
+      if (!lesson) {
+        return res.status(400).json({
+          success: false,
+          data: null,
+          error: "INVALID_REQUEST",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: lesson,
+        error: null,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        data: null,
+        error: "INTERNAL_SERVER_ERROR",
+      });
+    }
+  },
+  deleteCourse: async (req: Request, res: Response) => {
+    try {
+      const courseId = req.params.courseId as string;
+
+      const course = await prisma.course.delete({
+        where: {
+          id: courseId,
+        },
+      });
+      return res.status(200).json({
         success: true,
         data: course,
         error: null,

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const loginSchema = z.object({
-  email: z.string().email("Email is invalid.").toLowerCase(),
+  email: z.email("Email is invalid."),
   password: z.string().min(6, "Password must be at least 6 characters long."),
 });
 const signupSchema = z.object({
@@ -66,17 +66,11 @@ const controller = {
       );
 
       return res.status(200).json({
-        success: true,
-        data: {
-          token: token,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: email,
-            role: user.role,
-          },
-        },
-        error: null,
+        token: token,
+        id: user.id,
+        name: user.name,
+        email,
+        role: user.role,
       });
     } catch (error) {
       console.log("Login error:", error);
@@ -129,7 +123,7 @@ const controller = {
         },
       });
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         data: {
           id: newUser.id,
