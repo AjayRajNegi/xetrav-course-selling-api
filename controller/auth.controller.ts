@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import z, { hash, success } from "zod";
+import z from "zod";
 import { prisma } from "../lib";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
