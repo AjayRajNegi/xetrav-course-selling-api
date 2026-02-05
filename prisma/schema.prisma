@@ -14,6 +14,66 @@ datasource db {
 }
 
 model User {
-  id  String @id @default(uuid())
-  email String @unique
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now()) @map("created_at")
+
+  course   Course[]
+  purchase Purchase[]
+
+  @@map("user")
+}
+
+model Course {
+  id           String   @id @default(uuid())
+  instructorId String   @map("instructor_id")
+  title        String
+  description  String
+  price        Int
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  lesson     Lesson[]
+  purchase   Purchase[]
+  instructor User       @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@unique([instructorId, title])
+  @@map("course")
+}
+
+model Lesson {
+  id        String   @id @default(uuid())
+  courseId  String   @map("course_id")
+  title     String
+  content   String   @db.Text
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, title])
+  @@map("lesson")
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  courseId  String   @map("course_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, courseId])
+  @@map("purchase")
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
 }
